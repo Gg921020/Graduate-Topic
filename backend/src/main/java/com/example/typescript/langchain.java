@@ -184,17 +184,17 @@ public class langchain {
                     格式範例如下：
                 
                     modified(2 files):
-                     - src/App.java
-                     - src/utils/Helper.java
+                     src/App.java
+                     src/utils/Helper.java
     
                     add(1 files):
-                     - src/newmodule/NewService.java
+                     src/newmodule/NewService.java
     
                     delete(1 files):
-                     - src/oldmodule/OldService.java
+                     src/oldmodule/OldService.java
     
                     renamed(1 files):
-                     - src/Animal/Buff.java -> src/Function/Buff.java
+                     src/Animal/Buff.java -> src/Function/Buff.java
     
                      以下是 git status 的結果，請根據規則進行整理，不需要補充或解釋，只要乾淨列出結果，不要有其他文字輸出，請按照上述的順序輸出類型，每個類型之間用一行空白行隔開。
                 """ + statusOutput;

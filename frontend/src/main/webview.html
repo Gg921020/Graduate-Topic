@@ -7,7 +7,7 @@
         body {
             font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
             margin: 30px;
-            background-color: #1e1e1e; /* 深灰背景 */
+            background-color: #1e1e1e;
             color: #f1f1f1;
         }
         button {
@@ -30,8 +30,8 @@
             padding: 15px;
             border: 1px solid #555;
             white-space: pre-wrap;
-            background-color: #2a2a2a; /* 深灰背景 */
-            color: #ffffff;            /* 白色文字 */
+            background-color: #2a2a2a;
+            color: #ffffff;
             font-size: 15px;
             border-radius: 6px;
             box-shadow: 1px 1px 4px rgba(0,0,0,0.3);
@@ -43,7 +43,6 @@
             color: #dddddd;
         }
     </style>
-    
 </head>
 <body>
     <h1>LangChain Git Commit</h1>
@@ -66,7 +65,16 @@
             fetch("http://localhost:8080/getstatus")
                 .then(response => response.text())
                 .then(data => {
-                    document.getElementById("status").innerText = data;
+                    // 將 status 內容改成可以點擊的連結
+                    const lines = data.split('\n');
+                    const html = lines.map(line => {
+                        if (line.trim().endsWith(".java")) {
+                            return `<a href="#" onclick="showDiff('${line.trim()}')">${line.trim()}</a>`;
+                        } else {
+                            return line;
+                        }
+                    }).join('<br>');
+                    document.getElementById("status").innerHTML = html;
                 })
                 .catch(error => {
                     document.getElementById("status").innerText = "發生錯誤：" + error.message;
@@ -83,6 +91,14 @@
                 .catch(error => {
                     document.getElementById("commit").innerText = "發生錯誤：" + error.message;
                 });
+        }
+
+        //用vscode API將要處理的filePath傳給插件
+        function showDiff(filePath) {
+            vscode.postMessage({
+                command: 'showDiff',
+                file: filePath
+            });
         }
     </script>
 </body>

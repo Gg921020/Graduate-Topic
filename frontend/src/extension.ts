@@ -20,6 +20,11 @@ export function activate(context: vscode.ExtensionContext) {
   );
 }
 
+let workspaceFolder = "";
+if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+    workspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath;
+}
+
 // WebView 視圖提供者類
 class CodeManagerViewProvider implements vscode.WebviewViewProvider {
   private _context: vscode.ExtensionContext;
@@ -49,20 +54,34 @@ class CodeManagerViewProvider implements vscode.WebviewViewProvider {
     const javaFiles = await this.getJavaFiles();
     console.log("發現的 Java 文件:", javaFiles);
 
-    //獲取修改檔的路徑
+    // @ts-ignore
+    const cp = require('child_process');
+
+    //獲取修改檔的路徑，並執行git diff
     webviewView.webview.onDidReceiveMessage((message) => {
-      if (message.command === "showInPanel") {
-        const raw = message.content.trim();
-        let cleaned = raw;
-        // 如果有 ->，只保留後面的檔案路徑
-        if (cleaned.includes("->")) {
-          cleaned = cleaned.split("->")[1].trim();
-        }
-        // 去除開頭狀態碼（像 M、RM、?? 等）
-        cleaned = cleaned.replace(/^(?:[A-Z?]{1,3}\s+)+/, "").trim();
-        const output = vscode.window.createOutputChannel("Git Panel");
-        output.show();
-        output.appendLine(cleaned);
+      if (message.command === 'showDiff') {
+        const filePath = message.file;
+        const cleanPath = filePath.includes('->')
+          ? filePath.split('->')[1].trim()
+          : filePath.trim();
+
+        const absolutePath = path.join(workspaceFolder, cleanPath);
+
+        //執行git diff
+        cp.exec(`git diff -- "${absolutePath}"`, { cwd: workspaceFolder }, (err: any, stdout: string, stderr: string) => {
+          if (err) {
+            vscode.window.showErrorMessage(`執行 git diff 錯誤: ${stderr}`);
+            return;
+          }
+
+          //將diff info以文字檔開啟
+          vscode.workspace.openTextDocument({
+            content: stdout || '無變更內容。',
+            language: 'diff',
+          }).then(doc => {
+            vscode.window.showTextDocument(doc, { preview: false });
+          });
+        });
       }
     });
   }
@@ -72,11 +91,8 @@ class CodeManagerViewProvider implements vscode.WebviewViewProvider {
     try {
       let fileList = await vscode.workspace.findFiles("**/*.java}");
       const pathList = fileList.map(uri => uri.fsPath);
-      let workspaceFolder = "";
-      if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
-          workspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath;
-      }
 
+      // 將工作區路徑回傳給後端
       await fetch("http://localhost:8080/getlist", {
         method: "POST",
         headers: {
