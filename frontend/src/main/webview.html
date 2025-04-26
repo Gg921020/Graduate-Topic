@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>LangChain Git Commit 系統</title>
+    <style>
+        body {
+            font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+            margin: 30px;
+            background-color: #1e1e1e; /* 深灰背景 */
+            color: #f1f1f1;
+        }
+        button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .box {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #555;
+            white-space: pre-wrap;
+            background-color: #2a2a2a; /* 深灰背景 */
+            color: #ffffff;            /* 白色文字 */
+            font-size: 15px;
+            border-radius: 6px;
+            box-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+        }
+        h2 {
+            margin-top: 40px;
+            border-bottom: 2px solid #555;
+            padding-bottom: 5px;
+            color: #dddddd;
+        }
+    </style>
+    
+</head>
+<body>
+    <h1>LangChain Git Commit</h1>
+    <p>請點選下方按鈕來執行相關操作：</p>
+
+    <button onclick="getGitStatus()">取得 Git Status</button>
+    <button onclick="generateCommit()">產生 Commit Message</button>
+
+    <h2>Git Status 結果</h2>
+    <div id="status" class="box">尚未載入 Git 狀態。</div>
+
+    <h2>Commit Message 結果</h2>
+    <div id="commit" class="box">尚未產生 commit message。</div>
+
+    <script>
+        const vscode = acquireVsCodeApi();
+
+        function getGitStatus() {
+            document.getElementById("status").innerText = "讀取中，請稍候...";
+            fetch("http://localhost:8080/getstatus")
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("status").innerText = data;
+                })
+                .catch(error => {
+                    document.getElementById("status").innerText = "發生錯誤：" + error.message;
+                });
+        }
+
+        function generateCommit() {
+            document.getElementById("commit").innerText = "產生中，請稍候...";
+            fetch("http://localhost:8080/langchain")
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("commit").innerText = data;
+                })
+                .catch(error => {
+                    document.getElementById("commit").innerText = "發生錯誤：" + error.message;
+                });
+        }
+    </script>
+</body>
+</html>
