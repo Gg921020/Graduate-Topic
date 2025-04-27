@@ -61,14 +61,17 @@ class CodeManagerViewProvider implements vscode.WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage((message) => {
       if (message.command === 'showDiff') {
         const filePath = message.file;
-        const cleanPath = filePath.includes('->')
-          ? filePath.split('->')[1].trim()
-          : filePath.trim();
 
-        const absolutePath = path.join(workspaceFolder, cleanPath);
+        const path = vscode.window.createOutputChannel('FilePath');
+        path.appendLine(filePath);
+        path.show();
+
+
+
+        cp.exec(`cd "${workspaceFolder}"`);
 
         //執行git diff
-        cp.exec(`git diff -- "${absolutePath}"`, { cwd: workspaceFolder }, (err: any, stdout: string, stderr: string) => {
+        cp.exec(`git diff -- "${filePath}"`, { cwd: workspaceFolder }, (err: any, stdout: string, stderr: string) => {
           if (err) {
             vscode.window.showErrorMessage(`執行 git diff 錯誤: ${stderr}`);
             return;
@@ -109,7 +112,5 @@ class CodeManagerViewProvider implements vscode.WebviewViewProvider {
 
 // Extension 當被停用時
 export function deactivate() {}
-function exec(arg0: string, arg1: { vscode: typeof vscode; "": any; }): { stdout: any; } | PromiseLike<{ stdout: any; }> {
-  throw new Error("Function not implemented.");
-}
+
 

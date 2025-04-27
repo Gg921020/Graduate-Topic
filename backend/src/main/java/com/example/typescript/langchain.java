@@ -59,19 +59,20 @@ public class langchain {
 
         //將所有的simple massege整合成一個完整的commit massege
         String prompt2 = """
-                請閱讀以下多段 commit message，並依照 Conventional Commits 規範，整合為一個清楚且有組織的 commit message。若有相同類型 (如 feat, fix)，請合併為一段，並將細節列成清單。
+                請閱讀以下多段 commit message，並依照 Conventional Commits 規範，整合為一個清楚且有組織的 commit message。若有相同類型 (如 feat, fix)，請合併為一段，並將細節列成清單，每個類型都要有header跟body。
                 如有多種類型，每種類型的message都要輸出。
                 都用英文輸出。
                 請只輸出最終 commit message，格式如下：
                 範例如下：
 
-                   feat: 增加功能
-                   - 哪個檔案增加了什麼功能
-                   - 哪個檔案增加了什麼功能
-                   
-                   refactor: 重構功能
-                   - 哪個檔案重構了什麼功能
-                   - 哪個檔案重構了什麼功能
+                   Header: <type>(<scope>): <subject>
+                     - type: 代表 commit 的類別：feat, fix, docs, style, refactor, test, chore，必要欄位。
+                     - scope 代表 commit 影響的範圍，例如資料庫、控制層、模板層等等，視專案不同而不同，為可選欄位。
+                     - subject 代表此 commit 的簡短描述，不要超過 50 個字元，結尾不要加句號，為必要欄位。
+    
+                       Body: 72-character wrapped. This should answer:
+                         * Body 部份是對本次 Commit 的詳細描述，可以分成多行，每一行不要超過 72 個字元。
+                         * 說明程式碼變動的項目與原因，還有與先前行為的對比。
 
                 你是一個負責生成 Git Commit Message 的 AI，請輸出符合 Conventional Commits 規範的英文 Commit Message：
                 """ + allDiffResults;
